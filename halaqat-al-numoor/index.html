@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حلاقة النمور</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- اسم الصالون - ثلاث نقرات تفتح الأدمن -->
+    <header>
+        <h1 id="salon-name">حلاقة النمور</h1>
+        <div id="status-indicator">
+            <span class="dot" id="status-dot"></span>
+            <span id="status-text">جاري التحميل...</span>
+        </div>
+        <div id="visitor-count" style="margin-top:8px;color:#d4af37;font-weight:bold;display:flex;gap:12px;justify-content:center;">
+            <div>عدد الزوار الكلي: <span id="visitor-num">0</span></div>
+            <div>عدد زيارات هذا الاسبوع: <span id="visitor-week-num">0</span></div>
+        </div>
+    </header>
+
+    <!-- قائمة الخدمات -->
+    <main>
+        <h2>اختر خدمتك</h2>
+        
+        <div class="services">
+            <div class="service-card" onclick="selectService('kids', 3000, 25)">
+                <h3>حلاقة أطفال</h3>
+                <p class="price">3,000 دينار</p>
+                <p class="time">⏱ 25 دقيقة</p>
+            </div>
+
+            <div class="service-card" onclick="selectService('combo', 5000, 45)">
+                <h3>شعر + لحية</h3>
+                <p class="price">5,000 دينار</p>
+                <p class="time">⏱ 45 دقيقة</p>
+            </div>
+
+            <div class="service-card" onclick="selectService('dye', 3000, 10)">
+                <h3>صبغ الشعر</h3>
+                <p class="price">3,000 دينار</p>
+                <p class="time">⏱ 10 دقائق</p>
+            </div>
+
+            <div class="service-card" onclick="selectService('hair-dryer', 2000, 10)">
+                <h3>شسوار</h3>
+                <p class="price">2,000 دينار</p>
+                <p class="time">⏱ 10 دقائق</p>
+            </div>
+
+            <div class="service-card" onclick="selectService('facial', 10000, 60)">
+                <h3>جلسة تنظيف بشرة</h3>
+                <p class="price">10,000 دينار</p>
+                <p class="time">⏱ 60 دقيقة</p>
+            </div>
+        </div>
+
+        <!-- اختيار التاريخ -->
+        <div id="booking-section" style="display: none;">
+            <h2>اختر اليوم</h2>
+            <div id="calendar"></div>
+
+            <!-- اختيار الوقت -->
+            <h2>اختر الوقت</h2>
+            <div id="time-slots"></div>
+
+            <!-- نموذج البيانات -->
+            <div id="customer-form" style="display: none;">
+                <h2>بياناتك</h2>
+                <input type="text" id="customer-name" placeholder="الاسم الكريم" required>
+                <input type="tel" id="customer-phone" placeholder="رقم الجوال" required>
+                
+                <!-- حقل الرسالة -->
+                <div class="message-section">
+                    <label for="customer-message">رسالة للحلاق (اختياري)</label>
+                    <textarea id="customer-message" placeholder="أضف ملاحظات أو طلبات خاصة..."></textarea>
+                </div>
+                
+                <button onclick="confirmBooking()">✓ تأكيد الحجز</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- نافذة الأدمن المخفية -->
+    <div id="admin-modal" style="display: none;">
+        <div class="modal-content">
+            <h2>تسجيل دخول المدير</h2>
+            <input type="password" id="admin-password" placeholder="رمز المرور">
+            <button onclick="checkPassword()">دخول</button>
+            <button onclick="closeAdmin()" class="cancel">إلغاء</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

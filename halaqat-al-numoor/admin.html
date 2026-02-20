@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - حلاقة النمور</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background: #0a0a0a;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+        }
+        
+        .admin-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #d4af37;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        /* مفتاح التشغيل */
+        .toggle-container {
+            background: #1e1e1e;
+            padding: 25px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 80px;
+            height: 40px;
+            background: #444;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .toggle-switch.active {
+            background: #4caf50;
+        }
+        
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 32px;
+            height: 32px;
+            background: white;
+            border-radius: 50%;
+            top: 4px;
+            right: 4px;
+            transition: all 0.3s;
+        }
+        
+        .toggle-switch.active::after {
+            right: 44px;
+        }
+        
+        /* جدول الحجوزات */
+        .bookings-section {
+            background: #1e1e1e;
+            padding: 25px;
+            border-radius: 20px;
+            margin-top: 30px;
+        }
+        
+        .bookings-section h2 {
+            color: #d4af37;
+            margin-bottom: 20px;
+        }
+        
+        .bookings-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .bookings-table th,
+        .bookings-table td {
+            padding: 15px;
+            text-align: right;
+            border-bottom: 1px solid #333;
+        }
+        
+        .bookings-table th {
+            background: #2a2a2a;
+            color: #d4af37;
+        }
+        
+        .bookings-table tr:hover {
+            background: #2a2a2a;
+        }
+        
+        .no-bookings {
+            text-align: center;
+            color: #666;
+            padding: 50px;
+        }
+        
+        .delete-btn {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            color: #d4af37;
+            font-weight: bold;
+        }
+        
+        .back-btn {
+            margin-top: 30px;
+            background: #444;
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            cursor: pointer;
+        }
+        
+        .filter-buttons {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            background: #333;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            color: #fff;
+            cursor: pointer;
+            flex: 1;
+            min-width: 100px;
+        }
+        
+        .filter-btn.active {
+            background: #d4af37;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <h1>🦁 لوحة تحكم حلاقة النمور</h1>
+        
+        <!-- إحصائيات -->
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="total-bookings">0</div>
+                <div style="color: #888;">إجمالي الحجوزات</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="today-bookings">0</div>
+                <div style="color: #888;">حجوزات اليوم</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="total-revenue">0</div>
+                <div style="color: #888;">الإيرادات (دينار)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="site-visitors">0</div>
+                <div style="color: #888;">عدد الزوار الكلي</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="site-week-visitors">0</div>
+                <div style="color: #888;">عدد زيارات هذا الاسبوع</div>
+            </div>
+        </div>
+        
+        <!-- مفتاح فتح/إغلاق -->
+        <div class="toggle-container">
+            <div>
+                <h3>حالة المحل</h3>
+                <p id="status-label" style="color: #888; margin-top: 5px;">مفتوح</p>
+            </div>
+            <div class="toggle-switch active" id="salon-toggle" onclick="toggleSalon()"></div>
+        </div>
+
+        <!-- إعدادات الجدول -->
+        <div class="settings-section" style="background:#1e1e1e;padding:20px;border-radius:12px;margin-bottom:20px;">
+            <h3 style="color:#d4af37;margin-bottom:10px;">إعدادات الجدول</h3>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px;">
+                <div style="flex:1;min-width:220px;">
+                    <label style="color:#888;display:block;margin-bottom:6px;">ساعات العمل</label>
+                    من <input type="time" id="settings-start" value="14:00" style="width:120px;margin:0 6px;"> إلى <input type="time" id="settings-end" value="01:00" style="width:120px;margin:0 6px;">
+                </div>
+                <div style="flex:1;min-width:160px;">
+                    <label style="color:#888;display:block;margin-bottom:6px;">فاصل فتحات (دقيقة)</label>
+                    <input type="number" id="settings-interval" value="45" min="5" style="width:120px;">
+                </div>
+                <div style="flex:1;min-width:200px;">
+                    <label style="color:#888;display:block;margin-bottom:6px;">رمز قائمة الحلاق</label>
+                    <input type="text" id="barber-code" placeholder="رمز (مثال: 2222)" style="width:160px;">
+                </div>
+            </div>
+
+            <div style="margin-bottom:10px;">
+                <label style="color:#888;display:block;margin-bottom:6px;">أيام العمل (فعل/إبطال)</label>
+                <div id="days-settings" style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <label><input type="checkbox" data-day="أحد" checked> أحد</label>
+                    <label><input type="checkbox" data-day="اثنين" checked> اثنين</label>
+                    <label><input type="checkbox" data-day="ثلاثاء" checked> ثلاثاء</label>
+                    <label><input type="checkbox" data-day="أربعاء" checked> أربعاء</label>
+                    <label><input type="checkbox" data-day="خميس" checked> خميس</label>
+                    <label><input type="checkbox" data-day="جمعة" checked> جمعة</label>
+                    <label><input type="checkbox" data-day="سبت" checked> سبت</label>
+                </div>
+            </div>
+
+                <div style="display:flex;gap:10px;">
+                <button onclick="saveSchedulerSettings()">حفظ الإعدادات</button>
+                <button onclick="openBarberListPrompt()" style="background:#444;color:#fff;">فتح قائمة الحلاق الخاصة</button>
+                <button onclick="openAvailabilityModal()" style="background:#333;color:#fff;">إدارة أوقات عدم التواجد</button>
+            </div>
+        </div>
+        
+        <!-- قائمة الحجوزات -->
+        <div class="bookings-section">
+            <h2>📋 قائمة الحجوزات</h2>
+            
+            <div class="filter-buttons">
+                <button class="filter-btn active" onclick="filterBookings('all')">الكل</button>
+                <button class="filter-btn" onclick="filterBookings('أحد')">الأحد</button>
+                <button class="filter-btn" onclick="filterBookings('اثنين')">الاثنين</button>
+                <button class="filter-btn" onclick="filterBookings('ثلاثاء')">الثلاثاء</button>
+                <button class="filter-btn" onclick="filterBookings('أربعاء')">الأربعاء</button>
+                <button class="filter-btn" onclick="filterBookings('خميس')">الخميس</button>
+                <button class="filter-btn" onclick="filterBookings('جمعة')">الجمعة</button>
+                <button class="filter-btn" onclick="filterBookings('سبت')">السبت</button>
+            </div>
+            
+            <div id="bookings-list">
+                <div class="no-bookings">لا توجد حجوزات بعد</div>
+            </div>
+        </div>
+        
+        <button class="back-btn" onclick="window.location.href='index.html'">
+            ← العودة للرئيسية
+        </button>
+    </div>
+
+    <script>
+        // ===== إعدادات الجدول وإدارة قائمة الحلاق المحمية =====
+        function getDefaultSchedulerSettings() {
+            return {
+                start: '14:00',
+                end: '01:00',
+                interval: 45,
+                openDays: { 'أحد': true, 'اثنين': true, 'ثلاثاء': true, 'أربعاء': true, 'خميس': true, 'جمعة': true, 'سبت': true }
+            };
+        }
+
+        function loadSchedulerSettingsToForm() {
+            const stored = localStorage.getItem('scheduler_settings');
+            const s = stored ? JSON.parse(stored) : getDefaultSchedulerSettings();
+            document.getElementById('settings-start').value = s.start;
+            document.getElementById('settings-end').value = s.end;
+            document.getElementById('settings-interval').value = s.interval;
+            document.getElementById('barber-code').value = localStorage.getItem('barber_code') || '2222';
+
+            // days
+            document.querySelectorAll('#days-settings input[type="checkbox"]').forEach(cb => {
+                const day = cb.dataset.day;
+                cb.checked = !!s.openDays[day];
+            });
+        }
+
+        function saveSchedulerSettings() {
+            const s = {
+                start: document.getElementById('settings-start').value || '14:00',
+                end: document.getElementById('settings-end').value || '01:00',
+                interval: parseInt(document.getElementById('settings-interval').value) || 45,
+                openDays: {}
+            };
+            document.querySelectorAll('#days-settings input[type="checkbox"]').forEach(cb => {
+                s.openDays[cb.dataset.day] = cb.checked;
+            });
+            localStorage.setItem('scheduler_settings', JSON.stringify(s));
+            localStorage.setItem('barber_code', document.getElementById('barber-code').value || '2222');
+            alert('تم حفظ الإعدادات');
+        }
+
+        function openBarberListPrompt() {
+            const code = prompt('ادخل رمز قائمة الحلاق:');
+            const saved = localStorage.getItem('barber_code') || '2222';
+            if (code === saved) {
+                openBarberListModal();
+            } else {
+                alert('رمز غير صحيح');
+            }
+        }
+
+        function openBarberListModal() {
+            // إنشاء أو إظهار نافذة بسيطة
+            let modal = document.getElementById('barber-list-modal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'barber-list-modal';
+                modal.style = 'position:fixed;inset:0;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:2000;';
+                modal.innerHTML = `
+                    <div style="background:#1e1e1e;padding:20px;border-radius:12px;min-width:320px;">
+                        <h3 style="color:#d4af37;">قائمة الحلاق الخاصة</h3>
+                        <div id="barber-list" style="margin:10px 0;max-height:200px;overflow:auto;color:#fff;"></div>
+                        <input id="barber-add" placeholder="أضف اسم الحلاق" style="width:100%;padding:8px;margin:8px 0;border-radius:6px;border:1px solid #444;background:#2a2a2a;color:#fff;">
+                        <div style="display:flex;gap:8px;">
+                            <button onclick="addBarber()">إضافة</button>
+                            <button onclick="closeBarberModal()" style="background:#444;color:#fff;">إغلاق</button>
+                        </div>
+                    </div>`;
+                document.body.appendChild(modal);
+            }
+            modal.style.display = 'flex';
+            renderBarberList();
+        }
+
+        function closeBarberModal() {
+            const m = document.getElementById('barber-list-modal');
+            if (m) m.style.display = 'none';
+        }
+
+        function getBarberList() {
+            const s = localStorage.getItem('barber_list');
+            return s ? JSON.parse(s) : [];
+        }
+
+        function saveBarberList(list) {
+            localStorage.setItem('barber_list', JSON.stringify(list));
+        }
+
+        function renderBarberList() {
+            const container = document.getElementById('barber-list');
+            const list = getBarberList();
+            container.innerHTML = '';
+            list.forEach((name, idx) => {
+                const div = document.createElement('div');
+                div.style = 'display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #333;';
+                div.innerHTML = `<span>${name}</span><button onclick="removeBarber(${idx})" style="background:#f44336;color:#fff;border:none;padding:4px 8px;border-radius:6px;">حذف</button>`;
+                container.appendChild(div);
+            });
+        }
+
+        function addBarber() {
+            const input = document.getElementById('barber-add');
+            const name = input.value.trim();
+            if (!name) return;
+            const list = getBarberList();
+            list.push(name);
+            saveBarberList(list);
+            input.value = '';
+            renderBarberList();
+        }
+
+        function removeBarber(idx) {
+            const list = getBarberList();
+            list.splice(idx,1);
+            saveBarberList(list);
+            renderBarberList();
+        }
+
+        /* إدارة أوقات عدم التواجد */
+        function openAvailabilityModal() {
+            let modal = document.getElementById('availability-modal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'availability-modal';
+                modal.style = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;z-index:2100;';
+                modal.innerHTML = `
+                    <div style="background:#1e1e1e;padding:18px;border-radius:12px;width:90%;max-width:720px;color:#fff;">
+                        <h3 style="color:#d4af37;margin-top:0;">إدارة أوقات عدم التواجد</h3>
+                        <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
+                            <label style="color:#ccc;">اختر اليوم:</label>
+                            <select id="avail-day-select" style="padding:6px;background:#2a2a2a;border:1px solid #444;color:#fff;"></select>
+                            <button onclick="renderAvailabilityForSelectedDay()" style="background:#444;color:#fff;padding:6px 10px;border-radius:6px;">عرض</button>
+                            <div style="margin-left:auto;color:#888;font-size:0.9rem;">اضغط لتحديد/إلغاء التوفر</div>
+                        </div>
+                        <div id="availability-slots" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;max-height:420px;overflow:auto;padding-top:6px;"></div>
+                        <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end;">
+                            <button onclick="closeAvailabilityModal()" style="background:#444;color:#fff;">إغلاق</button>
+                        </div>
+                    </div>`;
+                document.body.appendChild(modal);
+            }
+            modal.style.display = 'flex';
+            const select = document.getElementById('avail-day-select');
+            select.innerHTML = '';
+            const days = ['أحد','اثنين','ثلاثاء','أربعاء','خميس','جمعة','سبت'];
+            days.forEach(d => {
+                const opt = document.createElement('option'); opt.value = d; opt.textContent = d; select.appendChild(opt);
+            });
+            renderAvailabilityForSelectedDay();
+        }
+
+        function renderAvailabilityForSelectedDay() {
+            const day = document.getElementById('avail-day-select').value;
+            renderAvailabilityForDay(day);
+        }
+
+        function renderAvailabilityForDay(day) {
+            const container = document.getElementById('availability-slots');
+            container.innerHTML = '';
+            const stored = localStorage.getItem('scheduler_settings');
+            const settings = stored ? JSON.parse(stored) : { start: '14:00', end: '01:00', interval: 45 };
+            let start = settings.start || '14:00';
+            let end = settings.end || '01:00';
+            const step = parseInt(settings.interval || 45,10);
+            // use parse function from main page if present; fallback simple parse
+            function toMinutes(k) { const p=k.split(':').map(Number); return p[0]*60+p[1]; }
+            let s = toMinutes(start);
+            let e = toMinutes(end);
+            if (e <= s) e += 24*60;
+
+            const unavailable = getBarberUnavailable();
+            const dayList = (unavailable && unavailable[day]) ? unavailable[day] : [];
+
+            for (let t = s; t <= e; t += step) {
+                const hour = Math.floor(t/60);
+                const minute = t%60;
+                const key = `${hour}:${minute.toString().padStart(2,'0')}`;
+                const label = (()=>{ const m = (t%(24*60)); const h=Math.floor(m/60); const mm=m%60; const mmS=mm.toString().padStart(2,'0'); if(h===0) return `12:${mmS}ليل`; if(h===12) return `12:${mmS}ظ`; if(h>12&&h<24) return `${h-12}:${mmS}م`; return `${h}:${mmS}ص`; })();
+                const btn = document.createElement('div');
+                btn.className = 'time-slot';
+                if (dayList.includes(key)) {
+                    btn.classList.add('unavailable');
+                }
+                btn.textContent = label;
+                btn.style.cursor = 'pointer';
+                btn.onclick = () => {
+                    toggleUnavailable(day,key,btn);
+                };
+                container.appendChild(btn);
+            }
+        }
+
+        function getBarberUnavailable() {
+            const s = localStorage.getItem('barber_unavailable');
+            return s ? JSON.parse(s) : {};
+        }
+
+        function saveBarberUnavailable(obj) {
+            localStorage.setItem('barber_unavailable', JSON.stringify(obj));
+        }
+
+        function toggleUnavailable(day,key,el) {
+            const obj = getBarberUnavailable();
+            obj[day] = obj[day] || [];
+            const idx = obj[day].indexOf(key);
+            if (idx === -1) {
+                obj[day].push(key);
+                el.classList.add('unavailable');
+            } else {
+                obj[day].splice(idx,1);
+                el.classList.remove('unavailable');
+            }
+            saveBarberUnavailable(obj);
+        }
+
+        function closeAvailabilityModal() {
+            const m = document.getElementById('availability-modal');
+            if (m) m.style.display = 'none';
+        }
+
+        // تحميل الإعدادات عند فتح صفحة الأدمن
+        window.addEventListener('DOMContentLoaded', () => {
+            loadSchedulerSettingsToForm();
+        });
+
+        let currentFilter = 'all';
+        let isOpen = true;
+        
+        // تحميل البيانات عند فتح الصفحة
+        window.onload = function() {
+            loadBookings();
+            loadSalonStatus();
+            // زوار الموقع
+            try {
+                const visitors = parseInt(localStorage.getItem('site_visitors_count') || '0', 10);
+                document.getElementById('site-visitors').textContent = visitors.toLocaleString();
+                const weekVisitors = parseInt(localStorage.getItem('site_week_visitors_count') || '0', 10);
+                const elw = document.getElementById('site-week-visitors');
+                if (elw) elw.textContent = weekVisitors.toLocaleString();
+            } catch (e) { console.warn(e); }
+        };
+        
+        // تحميل الحجوزات
+        function loadBookings() {
+            const bookings = JSON.parse(localStorage.getItem('halaqat_bookings') || '[]');
+            displayBookings(bookings);
+            updateStats(bookings);
+        }
+        
+        // عرض الحجوزات
+        function displayBookings(bookings) {
+            const container = document.getElementById('bookings-list');
+            
+            // التصفية
+            let filtered = bookings;
+            if (currentFilter !== 'all') {
+                filtered = bookings.filter(b => b.date === currentFilter);
+            }
+            
+            // ترتيب حسب الوقت (الأحدث أولاً)
+            filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="no-bookings">لا توجد حجوزات في هذا اليوم</div>';
+                return;
+            }
+            
+            let html = `
+                <table class="bookings-table">
+                    <thead>
+                        <tr>
+                            <th>الاسم</th>
+                            <th>الهاتف</th>
+                            <th>الخدمة</th>
+                            <th>اليوم</th>
+                            <th>الوقت</th>
+                            <th>الملاحظات</th>
+                            <th>السعر</th>
+                            <th>إجراء</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            filtered.forEach(booking => {
+                html += `
+                    <tr>
+                        <td>${booking.name}</td>
+                        <td>${booking.phone}</td>
+                        <td>${booking.serviceName}</td>
+                        <td>${booking.date}</td>
+                        <td>${booking.time}</td>
+                        <td>${booking.message || '-'}</td>
+                        <td>${booking.price.toLocaleString()} د.ع</td>
+                        <td>
+                            <button class="delete-btn" onclick="deleteBooking(${booking.id})">
+                                حذف
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+        
+        // تحديث الإحصائيات
+        function updateStats(bookings) {
+            document.getElementById('total-bookings').textContent = bookings.length;
+            
+            const today = new Date().toLocaleDateString('ar-IQ');
+            const todayBookings = bookings.filter(b => {
+                const bDate = new Date(b.timestamp).toLocaleDateString('ar-IQ');
+                return bDate === today;
+            });
+            document.getElementById('today-bookings').textContent = todayBookings.length;
+            
+            const totalRevenue = bookings.reduce((sum, b) => sum + b.price, 0);
+            document.getElementById('total-revenue').textContent = totalRevenue.toLocaleString();
+        }
+        
+        // تصفية الحجوزات
+        function filterBookings(day) {
+            currentFilter = day;
+            
+            // تحديث الأزرار
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            loadBookings();
+        }
+        
+        // حذف حجز
+        function deleteBooking(id) {
+            if (!confirm('هل أنت متأكد من حذف هذا الحجز؟')) return;
+            
+            let bookings = JSON.parse(localStorage.getItem('halaqat_bookings') || '[]');
+            bookings = bookings.filter(b => b.id !== id);
+            localStorage.setItem('halaqat_bookings', JSON.stringify(bookings));
+            
+            loadBookings();
+        }
+        
+        // تبديل حالة المحل
+        function toggleSalon() {
+            isOpen = !isOpen;
+            const toggle = document.getElementById('salon-toggle');
+            const label = document.getElementById('status-label');
+            
+            if (isOpen) {
+                toggle.classList.add('active');
+                label.textContent = 'مفتوح';
+                label.style.color = '#4caf50';
+            } else {
+                toggle.classList.remove('active');
+                label.textContent = 'مغلق';
+                label.style.color = '#f44336';
+            }
+            
+            localStorage.setItem('salonStatus', isOpen);
+        }
+        
+        // تحميل حالة المحل
+        function loadSalonStatus() {
+            const saved = localStorage.getItem('salonStatus');
+            if (saved === 'false') {
+                isOpen = true;
+                toggleSalon();
+            }
+        }
+    </script>
+</body>
+</html>
